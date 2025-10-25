@@ -1,0 +1,31 @@
+# Aurora Bank Portal - Revisión Arquitectónica
+
+## Observaciones actuales
+- El estado del dashboard se gestiona directamente en `App.tsx`, lo que acopla la vista con la lógica de obtención de datos y operaciones.
+- Las operaciones mockeadas no producen mutaciones en la instantánea, por lo que la UI no refleja efectos tras una acción.
+- Los componentes consumen directamente el cliente mock sin una capa de dominio; esto complica la evolución hacia un backend real.
+- No existe un flujo uniforme de manejo de errores, estados de carga ni reintentos.
+
+## Objetivos de mejora
+1. Encapsular la obtención y mutación del estado bancario en un hook especializado reutilizable.
+2. Unificar el acceso al cliente mock dentro de un servicio de dominio que pueda evolucionar a gateway real.
+3. Propagar mutaciones de las operaciones a la instantánea local para reflejar cambios inmediatos.
+4. Establecer un modelo de estado para operaciones (idle, pending, success, error) con mensajes consistentes.
+5. Mantener la pila en TypeScript + React, facilitando futuras integraciones.
+
+## Módulos propuestos
+- `src/modules/banking/domain/types.ts`: Contratos del dominio bancario, incluidas respuestas de operaciones con snapshot actualizado.
+- `src/modules/banking/api/mockGateway.ts`: Orquesta el mock actual, agrega mutaciones y control de errores simulado.
+- `src/modules/banking/hooks/useBankingDashboard.ts`: Hook que centraliza carga inicial, ejecución de operaciones, refresco y estado de errores/toasts.
+- `src/modules/banking/utils/format.ts`: Utilidades de formato compartidas (monedas, fechas).
+
+## Flujos mejorados
+- **Carga inicial**: `useBankingDashboard` obtiene la instantánea, controla loading/error y la comparte con las vistas.
+- **Operaciones**: `executeOperation` ejecuta la acción, actualiza snapshot retornado por el gateway y expone estado para toasts.
+- **Errores simulados**: El gateway aplica una tasa de fallo controlada para validar el flujo de error en UI.
+- **Actividad reciente**: Las mutaciones agregan nuevas entradas al historial cuando corresponde.
+
+## Acciones siguientes
+- Implementar la estructura anterior, actualizar imports y ajustar los componentes para consumir el nuevo hook y utilidades.
+- Ajustar la UI para mostrar variaciones visuales según el estado de la operación.
+- Documentar estos cambios en este repositorio para futuras iteraciones.
