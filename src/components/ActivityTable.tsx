@@ -3,7 +3,6 @@ import { formatCurrency, formatDateTime } from "../modules/banking/utils/format"
 
 interface ActivityTableProps {
   activity: ActivityItem[];
-  onDownloadStatement: () => void;
 }
 
 const categoryColor: Record<ActivityItem["category"], string> = {
@@ -13,14 +12,12 @@ const categoryColor: Record<ActivityItem["category"], string> = {
   Transferencia: "rgba(249, 115, 22, 0.35)"
 };
 
-export function ActivityTable({ activity, onDownloadStatement }: ActivityTableProps) {
+export function ActivityTable({ activity }: ActivityTableProps) {
   return (
     <div className="card fade-in">
       <div className="section-title">
         <h2>Actividad reciente</h2>
-        <button className="button-ghost" onClick={onDownloadStatement}>
-          Descargar estado
-        </button>
+        <button className="button-ghost">Descargar estado</button>
       </div>
       <table className="table">
         <thead>

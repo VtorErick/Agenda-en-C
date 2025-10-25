@@ -1,20 +1,71 @@
-import { CardSummary, OperationKind, OperationRequest } from "../modules/banking/domain/types";
+import {
+  CardSummary,
+  OperationKind,
+  OperationRequest
+} from "../modules/banking/domain/types";
 import { OperationState } from "../modules/banking/hooks/useBankingDashboard";
-import { operationCatalog } from "../modules/banking/domain/operationCatalog";
+
+interface OperationDefinition {
+  key: OperationKind;
+  title: string;
+  description: string;
+  accent: string;
+  icon: string;
+  requiresCard?: boolean;
+  defaultPayload?: OperationRequest;
+}
 
 interface CardOperationsProps {
   cards: CardSummary[];
   primaryAccountId?: string;
   operationState: OperationState;
-  onOpenOperation: (operation: OperationKind, payload?: OperationRequest) => void;
+  onOperate: (operation: OperationKind, payload?: OperationRequest) => Promise<void>;
 }
 
-export function CardOperations({
-  cards,
-  primaryAccountId,
-  operationState,
-  onOpenOperation
-}: CardOperationsProps) {
+const operations: OperationDefinition[] = [
+  {
+    key: "payCreditCard",
+    title: "Aplicar pago",
+    description: "Acredita un pago inmediato a tu tarjeta.",
+    accent: "linear-gradient(135deg, #22d3ee, #6366f1)",
+    icon: "💠",
+    requiresCard: true
+  },
+  {
+    key: "lockCard",
+    title: "Bloqueo temporal",
+    description: "Suspende compras por pérdida o robo.",
+    accent: "linear-gradient(135deg, #facc15, #f97316)",
+    icon: "🛡️",
+    requiresCard: true
+  },
+  {
+    key: "requestIncrease",
+    title: "Solicitar aumento",
+    description: "Envía una evaluación de línea de crédito.",
+    accent: "linear-gradient(135deg, #34d399, #10b981)",
+    icon: "📈",
+    requiresCard: true
+  },
+  {
+    key: "setTravelNotice",
+    title: "Aviso de viaje",
+    description: "Activa tus tarjetas en nuevos destinos.",
+    accent: "linear-gradient(135deg, #fb7185, #ec4899)",
+    icon: "🗺️",
+    requiresCard: true
+  },
+  {
+    key: "scheduleTransfer",
+    title: "Agendar transferencia",
+    description: "Programa una transferencia futura entre cuentas.",
+    accent: "linear-gradient(135deg, #38bdf8, #6366f1)",
+    icon: "📆",
+    defaultPayload: { amount: 520 }
+  }
+];
+
+export function CardOperations({ cards, primaryAccountId, onOperate, operationState }: CardOperationsProps) {
   const isProcessing = operationState.status === "pending";
   const activeOperation = operationState.status === "pending" ? operationState.operation : null;
 
@@ -35,10 +86,7 @@ export function CardOperations({
           onChange={(event) => {
             const { value } = event.target;
             if (value) {
-              onOpenOperation("payCreditCard", {
-                cardId: value,
-                accountId: primaryAccountId
-              });
+              onOperate("payCreditCard", { cardId: value });
               event.target.value = "";
             }
           }}
@@ -55,7 +103,7 @@ export function CardOperations({
       </div>
 
       <div className="grid two-columns">
-        {operationCatalog.map((operation) => {
+        {operations.map((operation) => {
           const targetCardId = operation.requiresCard ? cards[0]?.id : undefined;
           const payload: OperationRequest | undefined = operation.requiresCard
             ? { cardId: targetCardId, accountId: primaryAccountId, ...operation.defaultPayload }
@@ -67,7 +115,7 @@ export function CardOperations({
             <button
               key={operation.key}
               disabled={isProcessing}
-              onClick={() => onOpenOperation(operation.key, payload)}
+              onClick={() => onOperate(operation.key, payload)}
               style={{
                 display: "flex",
                 flexDirection: "column",

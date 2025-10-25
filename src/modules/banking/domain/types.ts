@@ -32,7 +32,6 @@ export interface ActivityItem {
   currency: "USD" | "EUR" | "MXN";
   timestamp: string;
   category: "Pago" | "Ingreso" | "Tarjeta" | "Transferencia";
-  accountId?: string;
 }
 
 export interface OperationRequest {
@@ -40,8 +39,6 @@ export interface OperationRequest {
   accountId?: string;
   amount?: number;
   notes?: string;
-  contactId?: string;
-  notificationId?: string;
 }
 
 export interface OperationResponse {
@@ -57,8 +54,6 @@ export interface BankSnapshot {
   accounts: AccountSummary[];
   cards: CardSummary[];
   recentActivity: ActivityItem[];
-  contacts: ContactSummary[];
-  notifications: NotificationItem[];
 }
 
 export type OperationKind =
@@ -66,8 +61,7 @@ export type OperationKind =
   | "lockCard"
   | "scheduleTransfer"
   | "requestIncrease"
-  | "setTravelNotice"
-  | "acknowledgeNotification";
+  | "setTravelNotice";
 
 export type OperationEndpoint = (payload?: OperationRequest) => Promise<OperationResponse>;
 
@@ -79,26 +73,4 @@ export interface OperationResult {
 export interface OperationGatewayError extends Error {
   code?: string;
   details?: OperationRequest | null;
-}
-
-export interface ContactSummary {
-  id: string;
-  name: string;
-  bank: string;
-  accountNumber: string;
-  avatarColor: string;
-  nickname?: string;
-  lastTransferAmount?: number;
-  lastTransferAt?: string;
-}
-
-export type NotificationCategory = "security" | "payment" | "announcement";
-
-export interface NotificationItem {
-  id: string;
-  title: string;
-  detail: string;
-  createdAt: string;
-  category: NotificationCategory;
-  read: boolean;
 }

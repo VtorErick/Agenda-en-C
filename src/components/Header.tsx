@@ -3,10 +3,9 @@ import { formatDateTime } from "../modules/banking/utils/format";
 
 interface HeaderProps {
   user: UserProfile;
-  onOpenNotifications: () => void;
 }
 
-export function Header({ user, onOpenNotifications }: HeaderProps) {
+export function Header({ user }: HeaderProps) {
   return (
     <header
       style={{
@@ -59,9 +58,7 @@ export function Header({ user, onOpenNotifications }: HeaderProps) {
             Nivel {user.tier}
           </p>
         </div>
-        <button className="button-ghost" onClick={onOpenNotifications}>
-          Notificaciones ({user.notifications})
-        </button>
+        <button className="button-ghost">Notificaciones ({user.notifications})</button>
       </div>
     </header>
   );
